@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Phase 1 App',
       theme: AppTheme.themeData,
       home: const RoleSelectionScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
