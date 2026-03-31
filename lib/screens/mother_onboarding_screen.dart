@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../providers/onboarding_provider.dart';
 
 class MotherOnboardingScreen extends StatelessWidget {
   const MotherOnboardingScreen({super.key});
@@ -14,9 +16,7 @@ class MotherOnboardingScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6B5B95)),
-          onPressed: () {
-            // Dummy callback
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           "Serene Sanctuary",
@@ -70,25 +70,40 @@ class MotherOnboardingScreen extends StatelessWidget {
             // Vital Stats Row
             Row(
               children: [
-                _buildStatField("AGE", "28"),
+                _buildStatField(
+                  context,
+                  "AGE",
+                  "28",
+                  (val) => context.read<OnboardingProvider>().setAge(val),
+                ),
                 const SizedBox(width: 16),
-                _buildStatField("HEIGHT", "165"),
+                _buildStatField(
+                  context,
+                  "HEIGHT",
+                  "165",
+                  (val) => context.read<OnboardingProvider>().setHeight(val),
+                ),
                 const SizedBox(width: 16),
-                _buildStatField("WEIGHT", "62"),
+                _buildStatField(
+                  context,
+                  "WEIGHT",
+                  "62",
+                  (val) => context.read<OnboardingProvider>().setWeight(val),
+                ),
               ],
             ),
             const SizedBox(height: 32),
 
             // Delivery Date Card
-            _buildDeliveryDateCard(),
+            _buildDeliveryDateCard(context),
             const SizedBox(height: 32),
 
             // Delivery Type Segmented Control
-            _buildSegmentedControl(),
+            _buildSegmentedControl(context),
             const SizedBox(height: 32),
 
             // First Pregnancy Toggle Card
-            _buildPregnancyToggleCard(),
+            _buildPregnancyToggleCard(context),
             const SizedBox(height: 48),
 
             // Rounded Image & Quote Card
@@ -100,7 +115,8 @@ class MotherOnboardingScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Dummy callback
+                  context.read<OnboardingProvider>().generatePairingCode();
+                  print('Code generated!');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6B5B95),
@@ -136,7 +152,12 @@ class MotherOnboardingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatField(String label, String value) {
+  Widget _buildStatField(
+    BuildContext context,
+    String label,
+    String hint,
+    Function(String) onChanged,
+  ) {
     return Expanded(
       child: Column(
         children: [
@@ -152,7 +173,7 @@ class MotherOnboardingScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
@@ -164,13 +185,25 @@ class MotherOnboardingScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: Text(
-              value,
+            child: TextField(
+              onChanged: onChanged,
+              keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 color: const Color(0xFF6B5B95),
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: hint,
+                hintStyle: GoogleFonts.poppins(
+                  color: const Color(0xFF6B5B95).withOpacity(0.3),
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                isDense: true,
               ),
             ),
           ),
@@ -179,61 +212,81 @@ class MotherOnboardingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDeliveryDateCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF7D8DF),
-              shape: BoxShape.circle,
+  Widget _buildDeliveryDateCard(BuildContext context) {
+    final provider = context.watch<OnboardingProvider>();
+    final date = provider.deliveryDate;
+    final dateStr = date != null ? "${date.month}/${date.day}/${date.year}" : "Tap to select";
+
+    return GestureDetector(
+      onTap: () async {
+        final pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime.now(),
+        );
+        if (pickedDate != null) {
+          context.read<OnboardingProvider>().setDeliveryDate(pickedDate);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
             ),
-            child: const Icon(Icons.calendar_today_outlined, color: Color(0xFF6B5B95), size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Delivery Date",
-                  style: GoogleFonts.poppins(
-                    color: const Color(0xFF6B5B95),
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  "Tap to select",
-                  style: GoogleFonts.poppins(
-                    color: const Color(0xFF6B5B95).withOpacity(0.6),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF7D8DF),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.calendar_today_outlined, color: Color(0xFF6B5B95), size: 24),
             ),
-          ),
-          const Icon(Icons.chevron_right, color: Colors.grey),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Delivery Date",
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF6B5B95),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    dateStr,
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF6B5B95).withOpacity(0.6),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSegmentedControl() {
+  Widget _buildSegmentedControl(BuildContext context) {
+    final provider = context.watch<OnboardingProvider>();
+    final isVaginal = provider.deliveryType == 'Vaginal';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -259,44 +312,67 @@ class MotherOnboardingScreen extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+                child: GestureDetector(
+                  onTap: () {
+                    context.read<OnboardingProvider>().setDeliveryType('Vaginal');
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: isVaginal ? const Color(0xFF6B5B95) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: isVaginal
+                          ? [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Text(
+                      "Vaginal",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        color: isVaginal ? Colors.white : const Color(0xFF8E8E93),
+                        fontSize: 16,
+                        fontWeight: isVaginal ? FontWeight.w600 : FontWeight.w500,
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    "Vaginal",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      color: const Color(0xFF6B5B95),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Text(
-                    "C-Section",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      color: const Color(0xFF8E8E93),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                child: GestureDetector(
+                  onTap: () {
+                    context.read<OnboardingProvider>().setDeliveryType('C-Section');
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: !isVaginal ? const Color(0xFF6B5B95) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: !isVaginal
+                          ? [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Text(
+                      "C-Section",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        color: !isVaginal ? Colors.white : const Color(0xFF8E8E93),
+                        fontSize: 16,
+                        fontWeight: !isVaginal ? FontWeight.w600 : FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -308,7 +384,9 @@ class MotherOnboardingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPregnancyToggleCard() {
+  Widget _buildPregnancyToggleCard(BuildContext context) {
+    bool isFirstPregnancy = context.watch<OnboardingProvider>().isFirstPregnancy;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -357,9 +435,9 @@ class MotherOnboardingScreen extends StatelessWidget {
             ),
           ),
           Switch(
-            value: true,
+            value: isFirstPregnancy,
             onChanged: (val) {
-              // Dummy callback
+              context.read<OnboardingProvider>().toggleFirstPregnancy(val);
             },
             activeColor: Colors.white,
             activeTrackColor: const Color(0xFF6B5B95),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'mother_onboarding_screen.dart';
+import 'partner_onboarding_screen.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -21,7 +23,10 @@ class RoleSelectionScreen extends StatelessWidget {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 32.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -47,9 +52,11 @@ class RoleSelectionScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 56),
-                _buildMotherCard(),
+                // We pass the context down here!
+                _buildMotherCard(context),
                 const SizedBox(height: 24),
-                _buildPartnerCard(),
+                // We pass the context down here!
+                _buildPartnerCard(context),
                 const Spacer(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -78,7 +85,8 @@ class RoleSelectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMotherCard() {
+  // Added BuildContext context here
+  Widget _buildMotherCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
@@ -99,7 +107,12 @@ class RoleSelectionScreen extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
             onTap: () {
-              // Navigation logic omitted as requested
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MotherOnboardingScreen(),
+                ),
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -151,7 +164,8 @@ class RoleSelectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPartnerCard() {
+  // Added BuildContext context here
+  Widget _buildPartnerCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
@@ -172,7 +186,12 @@ class RoleSelectionScreen extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
             onTap: () {
-              // Navigation logic omitted as requested
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PartnerOnboardingScreen(),
+                ),
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(24.0),

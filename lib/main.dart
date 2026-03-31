@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/role_selection_screen.dart';
 import 'theme/app_theme.dart';
+import 'providers/onboarding_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,11 +13,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Phase 1 App',
-      theme: AppTheme.themeData,
-      home: const RoleSelectionScreen(),
-      debugShowCheckedModeBanner: false,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => OnboardingProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Phase 1 App',
+        theme: AppTheme.themeData,
+        home: const RoleSelectionScreen(),
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
