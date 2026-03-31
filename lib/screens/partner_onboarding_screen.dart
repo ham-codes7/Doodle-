@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'partner_dashboard_screen.dart';
 
 class PartnerOnboardingScreen extends StatelessWidget {
   const PartnerOnboardingScreen({super.key});
@@ -114,6 +115,12 @@ class PartnerOnboardingScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       // Dummy callback per instructions
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PartnerDashboardScreen(),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6B5B95),

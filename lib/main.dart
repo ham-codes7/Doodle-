@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'screens/role_selection_screen.dart';
 import 'theme/app_theme.dart';
 import 'providers/onboarding_provider.dart';
+import 'providers/dashboard_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => OnboardingProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
       ],
       child: MaterialApp(
         title: 'Phase 1 App',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/onboarding_provider.dart';
+import 'mother_dashboard_screen.dart';
 
 class MotherOnboardingScreen extends StatelessWidget {
   const MotherOnboardingScreen({super.key});
@@ -117,6 +118,12 @@ class MotherOnboardingScreen extends StatelessWidget {
                 onPressed: () {
                   context.read<OnboardingProvider>().generatePairingCode();
                   print('Code generated!');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MotherDashboardScreen(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6B5B95),
