@@ -41,119 +41,148 @@ class MotherOnboardingScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 48.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title & Subtitle
-            Text(
-              "Welcome Home, Mama",
-              style: GoogleFonts.poppins(
-                color: const Color(0xFF6B5B95),
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                height: 1.2,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 48.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title & Subtitle
+              Text(
+                "Welcome Home, Mama",
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF6B5B95),
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  height: 1.2,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              "Let's tailor your restorative journey. Please share a few details about your recent transition.",
-              style: GoogleFonts.poppins(
-                color: const Color(0xFF6B5B95).withOpacity(0.7),
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-                height: 1.5,
+              const SizedBox(height: 12),
+              Text(
+                "Let's tailor your restorative journey. Please share a few details about your recent transition.",
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF6B5B95).withOpacity(0.7),
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                  height: 1.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 48),
+              const SizedBox(height: 48),
 
-            // Vital Stats Row
-            Row(
-              children: [
-                _buildStatField(
-                  context,
-                  "AGE",
-                  "28",
-                  (val) => context.read<OnboardingProvider>().setAge(val),
-                ),
-                const SizedBox(width: 16),
-                _buildStatField(
-                  context,
-                  "HEIGHT",
-                  "165",
-                  (val) => context.read<OnboardingProvider>().setHeight(val),
-                ),
-                const SizedBox(width: 16),
-                _buildStatField(
-                  context,
-                  "WEIGHT",
-                  "62",
-                  (val) => context.read<OnboardingProvider>().setWeight(val),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Delivery Date Card
-            _buildDeliveryDateCard(context),
-            const SizedBox(height: 32),
-
-            // Delivery Type Segmented Control
-            _buildSegmentedControl(context),
-            const SizedBox(height: 32),
-
-            // First Pregnancy Toggle Card
-            _buildPregnancyToggleCard(context),
-            const SizedBox(height: 48),
-
-            // Rounded Image & Quote Card
-            _buildImageQuoteCard(),
-            const SizedBox(height: 48),
-
-            // Primary Call to Action Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<OnboardingProvider>().generatePairingCode();
-                  print('Code generated!');
-                  Navigator.pushReplacement(
+              // Vital Stats Row
+              Row(
+                children: [
+                  _buildStatField(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const MotherDashboardScreen(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6B5B95),
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
+                    "AGE",
+                    "28",
+                    (val) => context.read<OnboardingProvider>().setAge(val),
                   ),
-                  elevation: 0,
+                  const SizedBox(width: 16),
+                  _buildStatField(
+                    context,
+                    "HEIGHT",
+                    "165",
+                    (val) => context.read<OnboardingProvider>().setHeight(val),
+                  ),
+                  const SizedBox(width: 16),
+                  _buildStatField(
+                    context,
+                    "WEIGHT",
+                    "62",
+                    (val) => context.read<OnboardingProvider>().setWeight(val),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // Delivery Date Card
+              _buildDeliveryDateCard(context),
+              const SizedBox(height: 32),
+
+              // Delivery Type Segmented Control
+              _buildSegmentedControl(context),
+              const SizedBox(height: 32),
+
+              // First Pregnancy Toggle Card
+              _buildPregnancyToggleCard(context),
+              const SizedBox(height: 48),
+
+              // Decorative Image (no Stack or Positioned)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.network(
+                  'https://images.unsplash.com/photo-1519689680058-324335c77eba?fit=crop&w=800&q=80', // Descriptive placeholder
+                  fit: BoxFit.cover,
+                  height: 200,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 200,
+                    width: double.infinity,
+                    color: Colors.grey.shade300,
+                    child: const Center(
+                      child: Icon(Icons.image_outlined, size: 64, color: Colors.grey),
+                    ),
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        "Generate Partner Pairing Code",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Your recovery is a journey, not a race. We're here to guide every step.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF6B5B95).withOpacity(0.8),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 48),
+
+              // Primary Call to Action Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<OnboardingProvider>().generatePairingCode();
+                    print('Code generated!');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MotherDashboardScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6B5B95),
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          "Generate Partner Pairing Code",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Icon(Icons.vpn_key_outlined, color: Colors.white, size: 22),
-                  ],
+                      const SizedBox(width: 12),
+                      const Icon(Icons.vpn_key_outlined, color: Colors.white, size: 22),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -452,71 +481,6 @@ class MotherOnboardingScreen extends StatelessWidget {
             inactiveTrackColor: Colors.grey.shade300,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildImageQuoteCard() {
-    return Container(
-      height: 220,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.network(
-              'https://images.unsplash.com/photo-1519689680058-324335c77eba?fit=crop&w=800&q=80', // Descriptive placeholder
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: Colors.grey.shade300,
-                child: const Center(
-                  child: Icon(Icons.image_outlined, size: 64, color: Colors.grey),
-                ),
-              ),
-            ),
-            // Dark gradient overlay
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.8),
-                  ],
-                ),
-              ),
-            ),
-            // Text Content
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Text(
-                  "Your recovery is a journey, not a race. We're here to guide every step.",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
