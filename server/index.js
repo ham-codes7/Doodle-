@@ -15,6 +15,10 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(cors());
 app.use(express.json());
 
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/logs', require('./routes/logRoutes'));
+
 // Basic Route for Sanctuary
 app.get('/', (req, res) => {
   res.json({ 
