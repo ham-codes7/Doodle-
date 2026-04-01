@@ -8,27 +8,56 @@ class MotherLoggerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Watching the provider for updates to UI state
     final provider = context.watch<DashboardProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF7), // Theme Cream
+      backgroundColor: const Color(0xFFFDFBF7),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF6B5B95)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          // Strict Rule: No Spacer/Expanded inside this Column
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context),
-              const SizedBox(height: 24),
-              _buildSymptomSection(context, provider),
+              Text(
+                "How are you, Mama?",
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF6B5B95),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Log your feelings to keep track and let your partner know how to help.",
+                style: GoogleFonts.poppins(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
               const SizedBox(height: 32),
-              _buildEmotionalPulse(context, provider),
+              
+              _buildSectionTitle("Mood"),
+              const SizedBox(height: 16),
+              _buildMoodSection(provider, context),
+              
               const SizedBox(height: 32),
-              _buildVitalStats(provider),
+              
+              _buildSectionTitle("Physical"),
+              const SizedBox(height: 16),
+              _buildPhysicalSection(provider, context),
+              
               const SizedBox(height: 48),
+              
               _buildSaveButton(context),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -36,295 +65,93 @@ class MotherLoggerScreen extends StatelessWidget {
     );
   }
 
-  // 1. Header with custom back button
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF6B5B95)),
-            ),
-          ),
-          const SizedBox(width: 24),
-          Text(
-            "Detailed Log",
-            style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF6B5B95), // Theme Lavender
-            ),
-          ),
-        ],
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.poppins(
+        color: const Color(0xFF6B5B95),
+        fontWeight: FontWeight.bold,
+        fontSize: 18,
       ),
     );
   }
 
-  // 2. Physical Symptoms Grid (using Wrap to avoid scroll issues)
-  Widget _buildSymptomSection(BuildContext context, DashboardProvider provider) {
-    final symptoms = [
-      {'name': 'Exhausted', 'icon': Icons.battery_alert},
-      {'name': 'Weepy', 'icon': Icons.water_drop},
-      {'name': 'Breast Pain', 'icon': Icons.favorite},
-      {'name': 'Bleeding', 'icon': Icons.bloodtype},
-      {'name': 'Anxious', 'icon': Icons.psychology},
-      {'name': 'Dizzy', 'icon': Icons.rebase_edit},
-      {'name': 'Nausea', 'icon': Icons.sick},
-      {'name': 'Cramping', 'icon': Icons.compress},
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Physical Symptoms",
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B5B95),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: symptoms.map((s) {
-              final isSelected = provider.selectedFeelings.contains(s['name']);
-              return GestureDetector(
-                onTap: () => provider.toggleFeeling(s['name'] as String),
-                child: Container(
-                  width: (MediaQuery.of(context).size.width - 60) / 2, // 2 items per row
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF6B5B95) : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected ? const Color(0xFF6B5B95) : const Color(0xFFFDF0F3),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        s['icon'] as IconData,
-                        size: 20,
-                        color: isSelected ? Colors.white : const Color(0xFF6B5B95),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          s['name'] as String,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? Colors.white : const Color(0xFF6B5B95),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+  Widget _buildMoodSection(DashboardProvider provider, BuildContext context) {
+    final moods = ['Happy', 'Anxious', 'Weepy', 'Overwhelmed'];
+    return Wrap(
+      spacing: 12.0,
+      runSpacing: 12.0,
+      children: moods.map((mood) => _buildChip(mood, provider, context)).toList(),
     );
   }
 
-  // 3. Emotional Pulse Selection
-  Widget _buildEmotionalPulse(BuildContext context, DashboardProvider provider) {
-    final moods = ['🌱 Calm', '☁️ Heavy', '🌙 Tired', '✨ Joyful', '🌪️ Tense'];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Emotional Pulse",
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B5B95),
-            ),
-          ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: moods.map((mood) {
-                final isSelected = provider.selectedFeelings.contains(mood);
-                return GestureDetector(
-                  onTap: () => provider.toggleFeeling(mood),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF6B5B95) : const Color(0xFFFDF0F3), // Theme Pink
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Text(
-                      mood,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        color: isSelected ? Colors.white : const Color(0xFF6B5B95),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
+  Widget _buildPhysicalSection(DashboardProvider provider, BuildContext context) {
+    final physicals = ['Exhausted', 'Breast Pain', 'Incision Pain', 'Cramping'];
+    return Wrap(
+      spacing: 12.0,
+      runSpacing: 12.0,
+      children: physicals.map((physical) => _buildChip(physical, provider, context)).toList(),
     );
   }
 
-  // 4. Vital Indicators
-  Widget _buildVitalStats(DashboardProvider provider) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Vital Indicators",
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B5B95),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                _buildStatRow("Hydration", "${provider.hydrationLiters}L / 3L", Icons.water_drop, 0.4),
-                const SizedBox(height: 20),
-                _buildStatRow("Sleep Quality", "Restless", Icons.nightlight_round, 0.6),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatRow(String label, String value, IconData icon, double progress) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 18, color: const Color(0xFF6B5B95).withOpacity(0.7)),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-            Text(
-              value,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF6B5B95),
-              ),
-            ),
-          ],
+  Widget _buildChip(String name, DashboardProvider provider, BuildContext context) {
+    final isSelected = provider.selectedFeelings.contains(name);
+    return FilterChip(
+      label: Text(
+        name,
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.w600,
+          color: isSelected ? Colors.white : const Color(0xFF6B5B95),
         ),
-        const SizedBox(height: 10),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: LinearProgressIndicator(
-            value: progress,
-            minHeight: 6,
-            backgroundColor: const Color(0xFFFDF0F3),
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6B5B95)),
-          ),
+      ),
+      selected: isSelected,
+      onSelected: (bool selected) {
+        context.read<DashboardProvider>().toggleFeeling(name);
+      },
+      selectedColor: const Color(0xFF6B5B95),
+      backgroundColor: Colors.white,
+      checkmarkColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected ? const Color(0xFF6B5B95) : Colors.grey.withOpacity(0.3),
         ),
-      ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     );
   }
 
-  // 5. Save Button
   Widget _buildSaveButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Center(
-        child: Container(
-          width: double.infinity,
-          height: 60,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF6B5B95), Color(0xFF8E7DBC)],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF6B5B95).withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF6B5B95),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+          elevation: 0,
+        ),
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Log saved successfully!',
+                style: GoogleFonts.poppins(),
               ),
+              backgroundColor: Colors.green[600],
+              behavior: SnackBarBehavior.floating,
             ),
-            child: Text(
-              "Save Daily Log",
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+          );
+          Navigator.pop(context);
+        },
+        child: Text(
+          "Save Log",
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
           ),
         ),
       ),

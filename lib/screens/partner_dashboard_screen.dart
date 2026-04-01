@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/dashboard_provider.dart';
+import 'partner_insights_screen.dart';
 
 class PartnerDashboardScreen extends StatelessWidget {
   const PartnerDashboardScreen({super.key});
@@ -29,7 +30,7 @@ class PartnerDashboardScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
@@ -378,7 +379,7 @@ class PartnerDashboardScreen extends StatelessWidget {
   }
 
   // 5. Bottom Navigation Bar
-  Widget _buildBottomNavigationBar() {
+  Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
@@ -388,7 +389,11 @@ class PartnerDashboardScreen extends StatelessWidget {
       showUnselectedLabels: false,
       elevation: 20,
       currentIndex: 2, // Tasks is selected
-      onTap: (index) {},
+      onTap: (index) {
+        if (index == 1) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const PartnerInsightsScreen()));
+        }
+      },
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today_outlined),

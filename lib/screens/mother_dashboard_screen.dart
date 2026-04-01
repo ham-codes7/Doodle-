@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/dashboard_provider.dart';
+import 'partner_dashboard_screen.dart';
+import 'mother_logger_screen.dart';
+import 'mother_care_screen.dart';
 
 class MotherDashboardScreen extends StatelessWidget {
   const MotherDashboardScreen({super.key});
@@ -19,7 +22,7 @@ class MotherDashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              _buildHeader(context),
               const SizedBox(height: 24),
               _buildHormoneDropCard(provider),
               const SizedBox(height: 24),
@@ -34,12 +37,12 @@ class MotherDashboardScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
   // 1. Header
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -66,8 +69,13 @@ class MotherDashboardScreen extends StatelessWidget {
         Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.grey),
-              onPressed: () {},
+              icon: const Icon(Icons.swap_horiz, color: Color(0xFF6B5B95), size: 30),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PartnerDashboardScreen()),
+                );
+              },
             ),
             const CircleAvatar(
               radius: 20,
@@ -422,7 +430,7 @@ class MotherDashboardScreen extends StatelessWidget {
   }
 
   // 7. Bottom Navigation Bar
-  Widget _buildBottomNavigationBar() {
+  Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
@@ -432,7 +440,13 @@ class MotherDashboardScreen extends StatelessWidget {
       showUnselectedLabels: false,
       elevation: 20,
       currentIndex: 0,
-      onTap: (index) {},
+      onTap: (index) {
+        if (index == 1) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherLoggerScreen()));
+        } else if (index == 3) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherCareScreen()));
+        }
+      },
       items: [
         BottomNavigationBarItem(
           icon: Container(
