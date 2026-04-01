@@ -25,6 +25,12 @@ class OnboardingProvider extends ChangeNotifier {
 
   String get enteredPairingCode => _enteredPairingCode;
 
+  bool get isMotherFormValid =>
+      _age.isNotEmpty &&
+      _height.isNotEmpty &&
+      _weight.isNotEmpty &&
+      _deliveryDate != null;
+
   // --- Methods (Setters & Logic) ---
   void setAge(String val) {
     _age = val;

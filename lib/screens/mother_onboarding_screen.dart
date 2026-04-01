@@ -9,6 +9,8 @@ class MotherOnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<OnboardingProvider>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
       appBar: AppBar(
@@ -143,18 +145,88 @@ class MotherOnboardingScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    context.read<OnboardingProvider>().generatePairingCode();
-                    print('Code generated!');
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MotherDashboardScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: provider.isMotherFormValid
+                      ? () {
+                          context.read<OnboardingProvider>().generatePairingCode();
+                          
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext dialogContext) {
+                              return AlertDialog(
+                                backgroundColor: const Color(0xFFFDFBF7),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                title: Text(
+                                  "Your Pairing Code",
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFF6B5B95),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Share this 4-digit code with your partner.",
+                                      style: GoogleFonts.poppins(
+                                        color: const Color(0xFF8E8E93),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      context.read<OnboardingProvider>().generatedPairingCode ?? "",
+                                      style: GoogleFonts.poppins(
+                                        color: const Color(0xFF6B5B95),
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 8.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actionsAlignment: MainAxisAlignment.center,
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(dialogContext); // Close dialog
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const MotherDashboardScreen(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF6B5B95),
+                                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(32),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: Text(
+                                      "Continue",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6B5B95),
+                    backgroundColor: provider.isMotherFormValid 
+                        ? const Color(0xFF6B5B95) 
+                        : Colors.grey.shade400,
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32),

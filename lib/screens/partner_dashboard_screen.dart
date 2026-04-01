@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/dashboard_provider.dart';
 import 'partner_insights_screen.dart';
+import 'role_selection_screen.dart';
+import 'placeholder_screen.dart';
 
 class PartnerDashboardScreen extends StatelessWidget {
   const PartnerDashboardScreen({super.key});
@@ -19,7 +21,7 @@ class PartnerDashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              _buildHeader(context),
               const SizedBox(height: 32),
               _buildCurrentStateCard(provider),
               const SizedBox(height: 32),
@@ -35,7 +37,7 @@ class PartnerDashboardScreen extends StatelessWidget {
   }
 
   // 1. Header
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,6 +46,18 @@ class PartnerDashboardScreen extends StatelessWidget {
           children: [
             Row(
               children: [
+                IconButton(
+                  icon: const Icon(Icons.logout, color: Color(0xFF6B5B95)),
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.centerLeft,
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+                      (route) => false,
+                    );
+                  },
+                ),
                 const CircleAvatar(
                   radius: 20,
                   backgroundColor: Color(0xFFE2D9F3),
@@ -392,6 +406,8 @@ class PartnerDashboardScreen extends StatelessWidget {
       onTap: (index) {
         if (index == 1) {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const PartnerInsightsScreen()));
+        } else if (index == 0 || index == 3) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen()));
         }
       },
       items: [

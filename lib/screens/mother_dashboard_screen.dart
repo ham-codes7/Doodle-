@@ -5,6 +5,8 @@ import '../providers/dashboard_provider.dart';
 import 'partner_dashboard_screen.dart';
 import 'mother_logger_screen.dart';
 import 'mother_care_screen.dart';
+import 'role_selection_screen.dart';
+import 'placeholder_screen.dart';
 
 class MotherDashboardScreen extends StatelessWidget {
   const MotherDashboardScreen({super.key});
@@ -45,28 +47,47 @@ class MotherDashboardScreen extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
           children: [
-            Text(
-              "Hi, Mama",
-              style: GoogleFonts.poppins(
-                color: const Color(0xFF6B5B95), // Dark Lavender
-                fontWeight: FontWeight.bold,
-                fontSize: 28,
-              ),
+            IconButton(
+              icon: const Icon(Icons.logout, color: Color(0xFF6B5B95)),
+              padding: EdgeInsets.zero,
+              alignment: Alignment.topLeft,
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+                  (route) => false,
+                );
+              },
             ),
-            Text(
-              "Day 14 of your Fourth Trimester",
-              style: GoogleFonts.poppins(
-                color: Colors.grey,
-                fontSize: 14,
-              ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Hi, Mama",
+                  style: GoogleFonts.poppins(
+                    color: const Color(0xFF6B5B95), // Dark Lavender
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                  ),
+                ),
+                Text(
+                  "Day 14 of your Fourth Trimester",
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
               icon: const Icon(Icons.swap_horiz, color: Color(0xFF6B5B95), size: 30),
@@ -366,7 +387,9 @@ class MotherDashboardScreen extends StatelessWidget {
             icon: Icons.water_drop,
             iconColor: Colors.blue[400]!,
             title: "HYDRATION",
-            value: "${provider.hydrationLiters}L",
+            value: "${provider.waterCount}",
+            onIncrement: () => provider.incrementWater(),
+            onDecrement: () => provider.decrementWater(),
           ),
         ),
         const SizedBox(width: 16),
@@ -375,7 +398,9 @@ class MotherDashboardScreen extends StatelessWidget {
             icon: Icons.nightlight_round,
             iconColor: Colors.indigo[400]!,
             title: "REST",
-            value: provider.restTime,
+            value: "${provider.sleepHours}h",
+            onIncrement: () => provider.incrementSleep(),
+            onDecrement: () => provider.decrementSleep(),
           ),
         ),
       ],
@@ -387,6 +412,8 @@ class MotherDashboardScreen extends StatelessWidget {
     required Color iconColor,
     required String title,
     required String value,
+    required VoidCallback onIncrement,
+    required VoidCallback onDecrement,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -415,16 +442,39 @@ class MotherDashboardScreen extends StatelessWidget {
               letterSpacing: 1.0,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              color: const Color(0xFF6B5B95),
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildMinMaxButton(Icons.remove, onDecrement),
+              Text(
+                value,
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF6B5B95),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+              _buildMinMaxButton(Icons.add, onIncrement),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMinMaxButton(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFF6B5B95), width: 1.5),
+        ),
+        child: Icon(icon, size: 16, color: const Color(0xFF6B5B95)),
       ),
     );
   }
@@ -445,6 +495,8 @@ class MotherDashboardScreen extends StatelessWidget {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherLoggerScreen()));
         } else if (index == 3) {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherCareScreen()));
+        } else if (index == 2 || index == 4) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen()));
         }
       },
       items: [

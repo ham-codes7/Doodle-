@@ -5,8 +5,8 @@ class DashboardProvider extends ChangeNotifier {
   final Set<String> _selectedFeelings = {};
   String _sosStatus = 'idle'; // idle, sent
   final Map<int, bool> _completedMamaTasks = {};
-  double _hydrationLiters = 1.2;
-  String _restTime = '4h 20m';
+  int _waterCount = 4; // Initial dummy data
+  int _sleepHours = 4; // Initial dummy data
   int _currentTimelineWeek = 2;
 
   // Partner's State (Derived)
@@ -23,8 +23,8 @@ class DashboardProvider extends ChangeNotifier {
   Set<String> get selectedFeelings => _selectedFeelings;
   String get sosStatus => _sosStatus;
   Map<int, bool> get completedMamaTasks => _completedMamaTasks;
-  double get hydrationLiters => _hydrationLiters;
-  String get restTime => _restTime;
+  int get waterCount => _waterCount;
+  int get sleepHours => _sleepHours;
   int get currentTimelineWeek => _currentTimelineWeek;
 
   String get mamaFeelingsSummaryText => _mamaFeelingsSummaryText;
@@ -90,9 +90,28 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateHydration(double liters) {
-    _hydrationLiters = liters;
+  void incrementWater() {
+    _waterCount++;
     notifyListeners();
+  }
+
+  void decrementWater() {
+    if (_waterCount > 0) {
+      _waterCount--;
+      notifyListeners();
+    }
+  }
+
+  void incrementSleep() {
+    _sleepHours++;
+    notifyListeners();
+  }
+
+  void decrementSleep() {
+    if (_sleepHours > 0) {
+      _sleepHours--;
+      notifyListeners();
+    }
   }
 
   void togglePartnerTask(int index, bool? isComplete) {
