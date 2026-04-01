@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/dashboard_provider.dart';
+import '../providers/onboarding_provider.dart';
+import 'role_selection_screen.dart';
 
 class PlaceholderScreen extends StatelessWidget {
   const PlaceholderScreen({super.key});
@@ -49,6 +54,42 @@ class PlaceholderScreen extends StatelessWidget {
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 48),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+                    if (context.mounted) {
+                      context.read<OnboardingProvider>().reset();
+                      context.read<DashboardProvider>().reset();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+                        (route) => false,
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFEBEE), // Soft Red/Pink background
+                    foregroundColor: Colors.red[900], // Dark red foreground
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    elevation: 0,
+                  ),
+                  icon: Icon(Icons.refresh, color: Colors.red[900]),
+                  label: Text(
+                    "Reset Demo",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

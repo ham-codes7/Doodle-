@@ -5,6 +5,7 @@ import '../providers/dashboard_provider.dart';
 import 'partner_insights_screen.dart';
 import 'role_selection_screen.dart';
 import 'placeholder_screen.dart';
+import 'mother_dashboard_screen.dart';
 
 class PartnerDashboardScreen extends StatelessWidget {
   const PartnerDashboardScreen({super.key});
@@ -58,6 +59,18 @@ class PartnerDashboardScreen extends StatelessWidget {
                     );
                   },
                 ),
+                // PITCH DEMO ONLY
+                IconButton(
+                  icon: const Icon(Icons.swap_horiz, color: Color(0xFF6B5B95)),
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.centerLeft,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MotherDashboardScreen()),
+                    );
+                  },
+                ),
                 const CircleAvatar(
                   radius: 20,
                   backgroundColor: Color(0xFFE2D9F3),
@@ -76,7 +89,9 @@ class PartnerDashboardScreen extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.settings_outlined, color: Colors.grey),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen()));
+              },
             ),
           ],
         ),
@@ -154,7 +169,7 @@ class PartnerDashboardScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFF7A6AA6), // Slightly lighter purple
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(24),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,17 +260,28 @@ class PartnerDashboardScreen extends StatelessWidget {
   }) {
     final bool isCompleted = provider.completedPartnerTasks[taskIndex] ?? false;
 
+    final bool isCritical = subtitle.contains('CRITICAL');
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: isCritical ? const Color(0xFFFDF0F3) : null,
+        borderRadius: BorderRadius.circular(24),
+        border: isCritical ? Border.all(color: const Color(0xFF6B5B95), width: 1.5) : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
           ),
         ],
+        gradient: isCritical
+            ? null
+            : const LinearGradient(
+                colors: [Color(0xFFFDF0F3), Color(0xFFFCE4EC)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -266,8 +292,8 @@ class PartnerDashboardScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+                  topLeft: Radius.circular(24),
+                  bottomLeft: Radius.circular(24),
                 ),
               ),
             ),
@@ -357,15 +383,20 @@ class PartnerDashboardScreen extends StatelessWidget {
       width: 140,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
           ),
         ],
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFDF0F3), Color(0xFFFCE4EC)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

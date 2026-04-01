@@ -7,6 +7,7 @@ import 'mother_logger_screen.dart';
 import 'mother_care_screen.dart';
 import 'role_selection_screen.dart';
 import 'placeholder_screen.dart';
+import 'mother_profile_screen.dart';
 
 class MotherDashboardScreen extends StatelessWidget {
   const MotherDashboardScreen({super.key});
@@ -25,15 +26,15 @@ class MotherDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(context),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               _buildHormoneDropCard(provider),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               _buildBubbleLogger(context, provider),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               _buildSOSButton(context),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               _buildCuratedPlan(context, provider),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               _buildStatsRow(provider),
             ],
           ),
@@ -98,10 +99,13 @@ class MotherDashboardScreen extends StatelessWidget {
                 );
               },
             ),
-            const CircleAvatar(
-              radius: 20,
-              backgroundColor: Color(0xFFE2D9F3),
-              child: Icon(Icons.person, color: Color(0xFF6B5B95)),
+            Hero(
+              tag: 'profile_hero',
+              child: const CircleAvatar(
+                radius: 20,
+                backgroundColor: Color(0xFFE2D9F3),
+                child: Icon(Icons.person, color: Color(0xFF6B5B95)),
+              ),
             ),
           ],
         ),
@@ -115,7 +119,7 @@ class MotherDashboardScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFDF0F3), // Soft Pink
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,15 +325,20 @@ class MotherDashboardScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
           ),
         ],
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFDF0F3), Color(0xFFFCE4EC)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Row(
         children: [
@@ -418,15 +427,20 @@ class MotherDashboardScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
           ),
         ],
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFDF0F3), Color(0xFFFCE4EC)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -495,7 +509,9 @@ class MotherDashboardScreen extends StatelessWidget {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherLoggerScreen()));
         } else if (index == 3) {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherCareScreen()));
-        } else if (index == 2 || index == 4) {
+        } else if (index == 4) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherProfileScreen()));
+        } else if (index == 2) {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen()));
         }
       },

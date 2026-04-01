@@ -43,16 +43,21 @@ class MotherLoggerScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
-              _buildSectionTitle("Mood"),
+              _buildSectionTitle("Physical Recovery"),
               const SizedBox(height: 16),
-              _buildMoodSection(provider, context),
+              _buildSection(provider, context, ['Lochia (Bleeding)', 'Incision Pain', 'Uterine Cramping']),
               
               const SizedBox(height: 32),
               
-              _buildSectionTitle("Physical"),
+              _buildSectionTitle("Vitals & Care"),
               const SizedBox(height: 16),
-              _buildPhysicalSection(provider, context),
+              _buildSection(provider, context, ['Dehydrated', 'Sleep Deprived', 'Skipped Prenatals']),
+              
+              const SizedBox(height: 32),
+              
+              _buildSectionTitle("Emotional"),
+              const SizedBox(height: 16),
+              _buildSection(provider, context, ['Baby Blues', 'Overstimulated', 'Bonding well']),
               
               const SizedBox(height: 48),
               
@@ -76,21 +81,11 @@ class MotherLoggerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMoodSection(DashboardProvider provider, BuildContext context) {
-    final moods = ['Happy', 'Anxious', 'Weepy', 'Overwhelmed'];
+  Widget _buildSection(DashboardProvider provider, BuildContext context, List<String> items) {
     return Wrap(
       spacing: 12.0,
       runSpacing: 12.0,
-      children: moods.map((mood) => _buildChip(mood, provider, context)).toList(),
-    );
-  }
-
-  Widget _buildPhysicalSection(DashboardProvider provider, BuildContext context) {
-    final physicals = ['Exhausted', 'Breast Pain', 'Incision Pain', 'Cramping'];
-    return Wrap(
-      spacing: 12.0,
-      runSpacing: 12.0,
-      children: physicals.map((physical) => _buildChip(physical, provider, context)).toList(),
+      children: items.map((item) => _buildChip(item, provider, context)).toList(),
     );
   }
 

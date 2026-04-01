@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingProvider extends ChangeNotifier {
   // --- Mother's State ---
@@ -69,11 +70,27 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void generatePairingCode() {
+  Future<void> generatePairingCode() async {
     // Generate a random 4-digit PIN between 1000 and 9999
     final random = Random();
     final code = (1000 + random.nextInt(9000)).toString();
     _generatedPairingCode = code;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('pairingCode', code);
+  }
+
+  void reset() {
+    _age = '';
+    _height = '';
+    _weight = '';
+    _deliveryDate = null;
+    _deliveryType = 'Vaginal';
+    _isFirstPregnancy = false;
+    _generatedPairingCode = null;
+    _enteredPairingCode = '';
     notifyListeners();
   }
 }

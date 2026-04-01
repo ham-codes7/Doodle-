@@ -57,26 +57,33 @@ class DashboardProvider extends ChangeNotifier {
     _mamaFeelingsSummaryText = "She is feeling ${feelingsList.join(' & ')}.";
     _partnerActionPlan = [];
 
-    if (_selectedFeelings.contains('Exhausted')) {
-      _contextText = "Her body is recovering from extreme physical trauma. She needs physical rest.";
+    if (_selectedFeelings.contains('Incision Pain')) {
+      _contextText = "She is managing significant surgical discomfort. Help her stay ahead of the pain.";
       _partnerActionPlan.addAll([
-        {'title': 'Take over all non-feeding baby duties tonight', 'priority': 'CRITICAL'},
-        {'title': 'Let her sleep uninterrupted for 4 hours', 'priority': 'HIGH'}
+        {'title': "Check if it's time for her pain medication.", 'priority': 'CRITICAL'}
       ]);
-    } else if (_selectedFeelings.contains('Weepy')) {
-      _contextText = "Hormone crash is active. Do not try to fix her sadness, just listen and validate.";
+    }
+    
+    if (_selectedFeelings.contains('Lochia (Bleeding)')) {
       _partnerActionPlan.addAll([
-        {'title': 'Bring her water and just hold her', 'priority': 'HIGH'},
-        {'title': 'Tell her she is doing an amazing job', 'priority': 'EMOTIONAL SUPPORT'}
+        {'title': "Bring her a fresh ice pack and heavy pads.", 'priority': 'PHYSICAL CARE'}
       ]);
-    } else if (_selectedFeelings.contains('Breast Pain')) {
-      _contextText = "She is experiencing physical discomfort. Help manage the logistics.";
+      if (!_selectedFeelings.contains('Incision Pain')) {
+        _contextText = "She is experiencing active physical recovery. Ensure she does not overexert herself.";
+      }
+    }
+
+    if (_selectedFeelings.contains('Overstimulated')) {
       _partnerActionPlan.addAll([
-        {'title': 'Wash and sterilize the pump parts', 'priority': 'HIGH'},
-        {'title': 'Prepare ice packs or warm compresses', 'priority': 'STABILITY TASK'}
+        {'title': "Take the baby for 45 minutes of skin-to-skin in another room.", 'priority': 'EMOTIONAL SUPPORT'}
       ]);
-    } else {
-      _contextText = "She needs your active support today. Stay close.";
+      if (!_selectedFeelings.contains('Incision Pain') && !_selectedFeelings.contains('Lochia (Bleeding)')) {
+        _contextText = "Sensory overload is peaking. Help reduce noise and active stimulation around her.";
+      }
+    }
+
+    if (_partnerActionPlan.isEmpty) {
+      _contextText = "She needs your active support today. Check in gently and stay close.";
     }
   }
 
@@ -116,6 +123,21 @@ class DashboardProvider extends ChangeNotifier {
 
   void togglePartnerTask(int index, bool? isComplete) {
     _completedPartnerTasks[index] = isComplete ?? false;
+    notifyListeners();
+  }
+
+  void reset() {
+    _selectedFeelings.clear();
+    _sosStatus = 'idle';
+    _completedMamaTasks.clear();
+    _waterCount = 4;
+    _sleepHours = 4;
+    _currentTimelineWeek = 2;
+    _mamaFeelingsSummaryText = "She is resting currently.";
+    _contextText = "No symptoms logged yet today. Check in gently.";
+    _partnerActionPlan = [];
+    _householdTasks.clear();
+    _completedPartnerTasks.clear();
     notifyListeners();
   }
 }
