@@ -90,4 +90,25 @@ router.get('/partner/dashboard', protect, async (req, res) => {
   }
 });
 
+// @desc    Mark Task as Completed (Partner)
+// @route   PUT /api/logs/task/:id
+router.put('/task/:id', protect, async (req, res) => {
+  try {
+    const { isCompleted } = req.body;
+    const task = await ActionTask.findByIdAndUpdate(
+      req.params.id, 
+      { isCompleted }, 
+      { new: true }
+    );
+
+    if (!task) {
+      return res.status(404).json({ success: false, message: "Task not found" });
+    }
+
+    res.status(200).json({ success: true, data: task });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;

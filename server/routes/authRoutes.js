@@ -104,4 +104,31 @@ const sendTokenResponse = (user, statusCode, res) => {
   });
 };
 
+// @desc    Update User Profile (Mother/Partner)
+// @route   PUT /api/auth/profile
+router.put('/profile', protect, async (req, res) => {
+  try {
+    const fieldsToUpdate = {
+      age: req.body.age,
+      height: req.body.height,
+      weight: req.body.weight,
+      deliveryDate: req.body.deliveryDate,
+      deliveryType: req.body.deliveryType,
+      isFirstPregnancy: req.body.isFirstPregnancy
+    };
+
+    const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+      new: true,
+      runValidators: true
+    });
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;

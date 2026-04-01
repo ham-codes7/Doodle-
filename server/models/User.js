@@ -37,6 +37,16 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'User',
   },
+  // Profile Fields (Onboarding)
+  age: String,
+  height: String,
+  weight: String,
+  deliveryDate: Date,
+  deliveryType: {
+    type: String,
+    enum: ['Vaginal', 'C-Section'],
+  },
+  isFirstPregnancy: Boolean,
   createdAt: {
     type: Date,
     default: Date.now,
