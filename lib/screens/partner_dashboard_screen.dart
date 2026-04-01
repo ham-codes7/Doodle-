@@ -7,29 +7,50 @@ import 'role_selection_screen.dart';
 import 'placeholder_screen.dart';
 import 'mother_dashboard_screen.dart';
 
-class PartnerDashboardScreen extends StatelessWidget {
+class PartnerDashboardScreen extends StatefulWidget {
   const PartnerDashboardScreen({super.key});
+
+  @override
+  State<PartnerDashboardScreen> createState() => _PartnerDashboardScreenState();
+}
+
+class _PartnerDashboardScreenState extends State<PartnerDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardProvider>().fetchPartnerDashboard();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DashboardProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF7), // Soft cream
+      backgroundColor: const Color(0xFFFDFBF7),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 32),
-              _buildCurrentStateCard(provider),
-              const SizedBox(height: 32),
-              _buildActionPlanList(context, provider),
-              const SizedBox(height: 32),
-              _buildBackgroundTasks(),
-            ],
+        child: RefreshIndicator(
+          onRefresh: () => provider.fetchPartnerDashboard(),
+          color: const Color(0xFF6B5B95),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 32),
+                _buildCurrentStateCard(provider),
+                const SizedBox(height: 32),
+                if (provider.isLoading && provider.partnerActionPlan.isEmpty)
+                  const Center(child: CircularProgressIndicator(color: Color(0xFF6B5B95)))
+                else
+                  _buildActionPlanList(context, provider),
+                const SizedBox(height: 32),
+                _buildBackgroundTasks(),
+              ],
+            ),
           ),
         ),
       ),
@@ -208,6 +229,38 @@ class PartnerDashboardScreen extends StatelessWidget {
 
   // 3. Action Plan List
   Widget _buildActionPlanList(BuildContext context, DashboardProvider provider) {
+    if (provider.partnerActionPlan.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Your Action Plan",
+            style: GoogleFonts.poppins(
+              color: const Color(0xFF6B5B95),
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.grey.withOpacity(0.2)),
+            ),
+            child: Center(
+              child: Text(
+                "No active tasks. Check in with Mama gently.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(color: Colors.grey),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -220,32 +273,30 @@ class PartnerDashboardScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _buildActionCard(
-          context: context,
-          provider: provider,
-          taskIndex: 0,
-          title: "Take over all non-feeding baby duties tonight.",
-          subtitle: "CRITICAL PRIORITY",
-          color: Colors.red,
-        ),
-        const SizedBox(height: 12),
-        _buildActionCard(
-          context: context,
-          provider: provider,
-          taskIndex: 1,
-          title: "Wash and sterilize the pump parts.",
-          subtitle: "HIGH PRIORITY",
-          color: Colors.orange,
-        ),
-        const SizedBox(height: 12),
-        _buildActionCard(
-          context: context,
-          provider: provider,
-          taskIndex: 2,
-          title: "Refill her 32oz water bottle.",
-          subtitle: "STABILITY TASK",
-          color: Colors.green,
-        ),
+        ...provider.partnerActionPlan.asMap().entries.map((entry) {
+          final int index = entry.key;
+          final dynamic task = entry.value;
+          final String title = task['title'] ?? 'Task';
+          final String priority = task['priority'] ?? 'NORMAL';
+          final bool isCompleted = task['isCompleted'] ?? false;
+
+          Color priorityColor = Colors.green;
+          if (priority == 'CRITICAL') priorityColor = Colors.red;
+          if (priority == 'HIGH') priorityColor = Colors.orange;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: _buildActionCard(
+              context: context,
+              provider: provider,
+              taskIndex: index,
+              title: title,
+              subtitle: "$priority PRIORITY",
+              color: priorityColor,
+              isCompleted: isCompleted,
+            ),
+          );
+        }).toList(),
       ],
     );
   }
@@ -257,9 +308,8 @@ class PartnerDashboardScreen extends StatelessWidget {
     required String title,
     required String subtitle,
     required Color color,
+    required bool isCompleted,
   }) {
-    final bool isCompleted = provider.completedPartnerTasks[taskIndex] ?? false;
-
     final bool isCritical = subtitle.contains('CRITICAL');
 
     return Container(

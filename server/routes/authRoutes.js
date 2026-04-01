@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 // @desc    Register a user
@@ -8,6 +9,10 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+    }
 
     const user = await User.create({
       name,
@@ -52,9 +57,14 @@ router.post('/login', async (req, res) => {
 
 // @desc    Link Partner to Mother via partnerCode
 // @route   PUT /api/auth/link
-router.put('/link', async (req, res) => {
+router.put('/link', protect, async (req, res) => {
   try {
-    const { partnerId, partnerCode } = req.body;
+    const { partnerCode } = req.body;
+    const partnerId = req.user.id; // Use ID from authenticated token
+
+    if (!partnerCode) {
+      return res.status(400).json({ success: false, message: 'Please provide a partner code' });
+    }
 
     // 1. Find the Mother by her unique code
     const mother = await User.findOne({ partnerCode, role: 'MOTHER' });

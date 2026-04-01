@@ -128,27 +128,47 @@ class MotherLoggerScreen extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Log saved successfully!',
-                style: GoogleFonts.poppins(),
-              ),
-              backgroundColor: Colors.green[600],
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          Navigator.pop(context);
+        onPressed: () async {
+          final success = await context.read<DashboardProvider>().submitLog();
+          if (success) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Sanctuary updated. Partner notified.',
+                    style: GoogleFonts.poppins(),
+                  ),
+                  backgroundColor: const Color(0xFF6B5B95),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              Navigator.pop(context);
+            }
+          } else {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    context.read<DashboardProvider>().error ?? 'Failed to update Sanctuary',
+                    style: GoogleFonts.poppins(),
+                  ),
+                  backgroundColor: Colors.red[600],
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          }
         },
-        child: Text(
-          "Save Log",
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
+        child: provider.isLoading 
+          ? const CircularProgressIndicator(color: Colors.white)
+          : Text(
+              "Update Sanctuary",
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
       ),
     );
   }

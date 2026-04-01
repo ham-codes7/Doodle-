@@ -10,8 +10,12 @@ const { protect } = require('../middleware/authMiddleware');
 // @route   POST /api/logs
 router.post('/', protect, async (req, res) => {
   try {
-    const userId = req.user.id; // Use authenticated user ID
+    const userId = req.user.id;
     const { feelings, emotionalPulse, hydrationLiters, sleepQuality, notes } = req.body;
+
+    if (!feelings || !Array.isArray(feelings)) {
+      return res.status(400).json({ success: false, message: 'Please provide feelings as an array' });
+    }
 
     // 1. Save the Log
     const log = await SymptomLog.create({
@@ -26,20 +30,26 @@ router.post('/', protect, async (req, res) => {
     // 2. Find Linked Partner
     const mother = await User.findById(userId);
     if (mother && mother.linkedUser) {
-      // 3. Run Translation Engine
-      const translation = translateSymptoms(feelings);
+      try {
+        // 3. Run Translation Engine
+        const translation = translateSymptoms(feelings);
 
-      // 4. Clear old pending tasks for this log/session if needed (Optional)
-      // 5. Generate and Save New Tasks for the Partner
-      const taskPromises = translation.tasks.map(task => {
-        return ActionTask.create({
-          recipient: mother.linkedUser,
-          sourceLog: log._id,
-          title: task.title,
-          priority: task.priority
-        });
-      });
-      await Promise.all(taskPromises);
+        // 4. Generate and Save New Tasks for the Partner
+        if (translation && translation.tasks) {
+          const taskPromises = translation.tasks.map(task => {
+            return ActionTask.create({
+              recipient: mother.linkedUser,
+              sourceLog: log._id,
+              title: task.title,
+              priority: task.priority
+            });
+          });
+          await Promise.all(taskPromises);
+        }
+      } catch (transErr) {
+        console.error('Translation Error:', transErr);
+        // We still return 201 because the log itself was saved
+      }
     }
 
     res.status(201).json({ success: true, data: log });
