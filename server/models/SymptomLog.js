@@ -10,6 +10,18 @@ const SymptomLogSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  physicalRecovery: {
+    type: [String],
+    default: [],
+  },
+  vitalsAndCare: {
+    type: [String],
+    default: [],
+  },
+  emotional: {
+    type: [String],
+    default: [],
+  },
   emotionalPulse: {
     type: String,
     enum: ['Calm', 'Heavy', 'Tired', 'Joyful', 'Tense', 'Not Specified'],

@@ -11,21 +11,31 @@ const { protect } = require('../middleware/authMiddleware');
 router.post('/', protect, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { feelings, emotionalPulse, hydrationLiters, sleepQuality, notes } = req.body;
-
-    if (!feelings || !Array.isArray(feelings)) {
-      return res.status(400).json({ success: false, message: 'Please provide feelings as an array' });
-    }
+    const { 
+      feelings, 
+      physicalRecovery, 
+      vitalsAndCare, 
+      emotional, 
+      emotionalPulse, 
+      hydrationLiters, 
+      sleepQuality, 
+      notes 
+    } = req.body;
 
     // 1. Save the Log
     const log = await SymptomLog.create({
       user: userId,
-      feelings,
+      feelings: feelings || [],
+      physicalRecovery: physicalRecovery || [],
+      vitalsAndCare: vitalsAndCare || [],
+      emotional: emotional || [],
       emotionalPulse,
       hydrationLiters,
       sleepQuality,
       notes
     });
+
+    console.log('✅ Saved Log:', log);
 
     // 2. Find Linked Partner
     const mother = await User.findById(userId);
