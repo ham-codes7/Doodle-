@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'mother_onboarding_screen.dart';
+import 'mother_auth_screen.dart';
 import 'partner_onboarding_screen.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
@@ -52,10 +52,8 @@ class RoleSelectionScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 56),
-                // We pass the context down here!
                 _buildMotherCard(context),
                 const SizedBox(height: 24),
-                // We pass the context down here!
                 _buildPartnerCard(context),
                 const Spacer(),
                 Row(
@@ -85,7 +83,6 @@ class RoleSelectionScreen extends StatelessWidget {
     );
   }
 
-  // Added BuildContext context here
   Widget _buildMotherCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -110,7 +107,7 @@ class RoleSelectionScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MotherOnboardingScreen(),
+                  builder: (context) => const MotherAuthScreen(),
                 ),
               );
             },
@@ -164,7 +161,7 @@ class RoleSelectionScreen extends StatelessWidget {
     );
   }
 
-  // Added BuildContext context here
+
   Widget _buildPartnerCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(

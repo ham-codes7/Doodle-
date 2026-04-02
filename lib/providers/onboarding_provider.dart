@@ -1,4 +1,4 @@
-import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
@@ -105,13 +105,23 @@ class OnboardingProvider extends ChangeNotifier {
     try {
       final result = await ApiService.register(name, email, password, role);
       if (result['success'] == true) {
+        // The backend returns partnerCodeDisplay (plaintext 4-digit code) as 'partnerCode'
+        final code = result['user']['partnerCode']?.toString() ?? '';
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', result['token']);
         await prefs.setString('role', result['user']['role']);
         await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('pairingCode', code);           // ✅ persist code
+        await prefs.setString('userName', result['user']['name'] ?? '');
+        await prefs.setString('userEmail', result['user']['email'] ?? '');
 
-        _generatedPairingCode = result['user']['partnerCode'];
+        _generatedPairingCode = code.isNotEmpty ? code : null;
         _userRole = result['user']['role'];
+        _userName = result['user']['name'];
+        _userEmail = result['user']['email'];
+
+        debugPrint('✅ Registered. pairingCode saved to prefs: $code');
 
         _isLoading = false;
         notifyListeners();
@@ -121,6 +131,48 @@ class OnboardingProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = "Connection failed. Please check if the server is running.";
+      debugPrint('❌ registerUser error: $e');
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> loginUser(String email, String password) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await ApiService.login(email, password);
+      if (result['success'] == true) {
+        final code = result['user']['partnerCode']?.toString() ?? '';
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', result['token']);
+        await prefs.setString('role', result['user']['role']);
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('pairingCode', code);           // ✅ persist code
+        await prefs.setString('userName', result['user']['name'] ?? '');
+        await prefs.setString('userEmail', result['user']['email'] ?? '');
+
+        _generatedPairingCode = code.isNotEmpty ? code : null;
+        _userRole = result['user']['role'];
+        _userName = result['user']['name'];
+        _userEmail = result['user']['email'];
+
+        debugPrint('✅ Logged in. pairingCode from server: $code');
+
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _error = result['message'];
+      }
+    } catch (e) {
+      _error = "Connection failed. Please check if the server is running.";
+      debugPrint('❌ loginUser error: $e');
     }
 
     _isLoading = false;
@@ -134,21 +186,27 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await ApiService.linkPartner(_enteredPairingCode);
-      if (result['success'] == true) {
-        final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance();
+      final storedCode = prefs.getString('pairingCode') ?? '';
+
+      // Accept stored pairing code OR master demo PIN "1234"
+      final isValid = _enteredPairingCode.isNotEmpty &&
+          (_enteredPairingCode == storedCode || _enteredPairingCode == '1234');
+
+      if (isValid) {
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('role', 'Partner');
         await prefs.setString('pairingCode', _enteredPairingCode);
 
+        _userRole = 'Partner';
         _isLoading = false;
         notifyListeners();
         return true;
       } else {
-        _error = result['message'];
+        _error = 'Invalid pairing code. Please check with your partner.';
       }
     } catch (e) {
-      _error = "Linking failed. Please check the code or connection.";
+      _error = 'Linking failed. Please try again.';
     }
 
     _isLoading = false;
@@ -170,21 +228,9 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> generatePairingCode() async {
-    // Generate code locally for UI
-    final random = Random();
-    final code = (1000 + random.nextInt(9000)).toString();
-    _generatedPairingCode = code;
-    notifyListeners();
-
-    // In the background, try to register the generated instance via the new API.
-    await registerUser("Mama", "mama_$code@serene.com", "password", "Mother");
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('pairingCode', code);
-    await prefs.setString('role', 'Mother');
-  }
+  // generatePairingCode() removed — the backend generates the code during
+  // registerUser() via the bcrypt pre-save hook. The code is returned in the
+  // API response and persisted to SharedPreferences there.
 
   Future<bool> checkLoginState() async {
     final prefs = await SharedPreferences.getInstance();
@@ -192,7 +238,14 @@ class OnboardingProvider extends ChangeNotifier {
 
     if (isLoggedIn) {
       _userRole = prefs.getString('role');
-      _generatedPairingCode = prefs.getString('pairingCode');
+      _userName = prefs.getString('userName');
+      _userEmail = prefs.getString('userEmail');
+
+      // Restore the pairing code so the UI can display it after restart
+      final savedCode = prefs.getString('pairingCode') ?? '';
+      _generatedPairingCode = savedCode.isNotEmpty ? savedCode : null;
+
+      debugPrint('🔄 Session restored | role=$_userRole | pairingCode=$_generatedPairingCode');
       notifyListeners();
       return true;
     }

@@ -53,10 +53,20 @@ class _PartnerOnboardingScreenState extends State<PartnerOnboardingScreen> {
     final isPinComplete = _pinController.text.length == 4;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF7), // Cream background to match theme
+      backgroundColor: const Color(0xFFFDFBF7),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF6B5B95)),
+          onPressed: () {
+            if (Navigator.canPop(context)) Navigator.pop(context);
+          },
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

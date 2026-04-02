@@ -14,14 +14,12 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role
-    });
+    const user = await User.create({ name, email, password, role });
 
-    sendTokenResponse(user, 201, res);
+    // Re-fetch with partnerCodeDisplay so we can return it once to the client
+    const fullUser = await User.findById(user._id).select('+partnerCodeDisplay');
+
+    sendTokenResponse(fullUser, 201, res);
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -37,7 +35,8 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide an email and password' });
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    // Select password AND partnerCodeDisplay so we can return the code to client
+    const user = await User.findOne({ email }).select('+password +partnerCodeDisplay');
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -49,6 +48,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
+    console.log(`✅ Login success for ${user.email} | partnerCode: ${user.partnerCodeDisplay || 'N/A'}`);
     sendTokenResponse(user, 200, res);
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -60,22 +60,34 @@ router.post('/login', async (req, res) => {
 router.put('/link', protect, async (req, res) => {
   try {
     const { partnerCode } = req.body;
-    const partnerId = req.user.id; // Use ID from authenticated token
+    const partnerId = req.user.id;
 
     if (!partnerCode) {
       return res.status(400).json({ success: false, message: 'Please provide a partner code' });
     }
 
-    // 1. Find the Mother by her unique code
-    const mother = await User.findOne({ partnerCode, role: 'MOTHER' });
+    // Fetch all MOTHER accounts with their hashed partnerCode
+    const mothers = await User.find({ role: 'MOTHER' }).select('+partnerCode');
 
-    if (!mother) {
-      return res.status(404).json({ success: false, message: 'Invalid partner code or no Mother found with this code' });
+    // Find the mother whose hashed code matches the entered code
+    let matchedMother = null;
+    for (const mother of mothers) {
+      if (mother.partnerCode) {
+        const isMatch = await mother.matchPartnerCode(partnerCode);
+        if (isMatch) {
+          matchedMother = mother;
+          break;
+        }
+      }
     }
 
-    // 2. Link them bidirectionally
-    await User.findByIdAndUpdate(partnerId, { linkedUser: mother._id });
-    await User.findByIdAndUpdate(mother._id, { linkedUser: partnerId });
+    if (!matchedMother) {
+      return res.status(404).json({ success: false, message: 'Invalid partner code. No matching account found.' });
+    }
+
+    // Link bidirectionally
+    await User.findByIdAndUpdate(partnerId, { linkedUser: matchedMother._id });
+    await User.findByIdAndUpdate(matchedMother._id, { linkedUser: partnerId });
 
     res.status(200).json({ success: true, message: 'Sanctuary Link Successful! You are now connected.' });
   } catch (err) {
@@ -85,7 +97,6 @@ router.put('/link', protect, async (req, res) => {
 
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
-  // Create token
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
@@ -98,9 +109,10 @@ const sendTokenResponse = (user, statusCode, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      partnerCode: user.partnerCode,
-      linkedUser: user.linkedUser
-    }
+      // Return the plaintext code once so Flutter can display it; null for partners
+      partnerCode: user.partnerCodeDisplay || null,
+      linkedUser: user.linkedUser,
+    },
   });
 };
 

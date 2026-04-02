@@ -22,22 +22,25 @@ const UserSchema = new mongoose.Schema({
     select: false,
   },
   role: {
-// ... (rest of the fields)
     type: String,
     enum: ['MOTHER', 'PARTNER'],
     default: 'MOTHER',
   },
-  // Unique code for linking Mother and Partner
+  // Bcrypt-hashed 4-digit pairing code — never returned by default
   partnerCode: {
     type: String,
-    unique: true,
+    select: false,
   },
-  // Reference to the linked user
+  // Plaintext code returned exactly once at registration for display on client
+  partnerCodeDisplay: {
+    type: String,
+    select: false,
+  },
   linkedUser: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
   },
-  // Profile Fields (Onboarding)
+  // Profile Fields
   age: String,
   height: String,
   weight: String,
@@ -53,24 +56,33 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-// Encrypt password using bcrypt
+// Pre-save: hash password + generate & hash 4-digit numeric pairing code
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next();
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
   }
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  // Only MOTHER accounts get a pairing code, only on first save
+  if (!this.partnerCode && this.role === 'MOTHER') {
+    const plainCode = String(Math.floor(1000 + Math.random() * 9000)); // 4 digits: 1000–9999
+    this.partnerCodeDisplay = plainCode;          // Keep plaintext for one-time display
 
-  // Generate a unique 6-character partner code if not exists
-  if (!this.partnerCode) {
-    this.partnerCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const salt = await bcrypt.genSalt(10);
+    this.partnerCode = await bcrypt.hash(plainCode, salt); // Store hashed version
   }
+
+  next();
 });
 
-// Match user entered password to hashed password in database
+// Compare entered password to stored hash
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Compare entered partner code to stored hash
+UserSchema.methods.matchPartnerCode = async function (enteredCode) {
+  return await bcrypt.compare(String(enteredCode), this.partnerCode);
 };
 
 module.exports = mongoose.model('User', UserSchema);
