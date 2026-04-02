@@ -56,18 +56,21 @@ class MotherProfileScreen extends StatelessWidget {
                           strokeWidth: 12.0,
                         ),
                         Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Week 3",
-                                style: GoogleFonts.poppins(
-                                  color: const Color(0xFF6B5B95),
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Week 3",
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFF6B5B95),
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],

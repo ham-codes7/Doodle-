@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../services/api_service.dart';
 
 class DashboardProvider extends ChangeNotifier {
@@ -7,6 +8,7 @@ class DashboardProvider extends ChangeNotifier {
   // Mama's State
   final Set<String> _selectedFeelings = {};
   String _sosStatus = 'idle';
+  final Map<int, bool> _completedMamaTasks = {};
   int _waterCount = 4;
   int _sleepHours = 4;
   int _currentTimelineWeek = 2;
@@ -15,6 +17,8 @@ class DashboardProvider extends ChangeNotifier {
   String _mamaFeelingsSummaryText = "She is resting currently.";
   String _contextText = "No symptoms logged yet today. Check in gently.";
   List<dynamic> _partnerActionPlan = [];
+  final List<Map<String, String>> _householdTasks = [];
+  final Map<int, bool> _completedPartnerTasks = {};
 
   // Public Getters
   bool get isLoading => _isLoading;
@@ -27,6 +31,9 @@ class DashboardProvider extends ChangeNotifier {
   String get mamaFeelingsSummaryText => _mamaFeelingsSummaryText;
   String get contextText => _contextText;
   List<dynamic> get partnerActionPlan => _partnerActionPlan;
+  Map<int, bool> get completedMamaTasks => _completedMamaTasks;
+  List<Map<String, String>> get householdTasks => _householdTasks;
+  Map<int, bool> get completedPartnerTasks => _completedPartnerTasks;
 
   // --- Methods ---
 
@@ -123,8 +130,23 @@ class DashboardProvider extends ChangeNotifier {
     }
   }
 
-  void togglePartnerTask(int index, bool? isComplete) {
-    _completedPartnerTasks[index] = isComplete ?? false;
+  Future<void> togglePartnerTask(int index, bool? isComplete) async {
+    final bool completed = isComplete ?? false;
+    _completedPartnerTasks[index] = completed;
+    
+    // Also try updating via API if it is an API-backed task
+    if (index >= 0 && index < _partnerActionPlan.length) {
+      final task = _partnerActionPlan[index];
+      if (task['_id'] != null) {
+        try {
+          await ApiService.updateTaskStatus(task['_id'], completed);
+          // Locally update the array to reflect change
+          _partnerActionPlan[index]['isCompleted'] = completed;
+        } catch (e) {
+          debugPrint('Failed to update task status: $e');
+        }
+      }
+    }
     notifyListeners();
   }
 

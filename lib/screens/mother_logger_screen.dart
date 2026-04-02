@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/dashboard_provider.dart';
+import '../providers/onboarding_provider.dart';
 
 class MotherLoggerScreen extends StatelessWidget {
   const MotherLoggerScreen({super.key});
@@ -9,6 +10,7 @@ class MotherLoggerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DashboardProvider>();
+    final mamaName = context.read<OnboardingProvider>().userName ?? "Mama";
 
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
@@ -27,7 +29,7 @@ class MotherLoggerScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "How are you, Mama?",
+                "How are you, $mamaName?",
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF6B5B95),
                   fontWeight: FontWeight.bold,
@@ -159,7 +161,7 @@ class MotherLoggerScreen extends StatelessWidget {
             }
           }
         },
-        child: provider.isLoading 
+        child: context.watch<DashboardProvider>().isLoading 
           ? const CircularProgressIndicator(color: Colors.white)
           : Text(
               "Update Sanctuary",

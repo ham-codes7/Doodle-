@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/dashboard_provider.dart';
+import '../providers/onboarding_provider.dart';
 import 'partner_insights_screen.dart';
 import 'role_selection_screen.dart';
 import 'placeholder_screen.dart';
@@ -152,7 +153,7 @@ class _PartnerDashboardScreenState extends State<PartnerDashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "MAMA'S CURRENT STATE",
+                "${(context.read<OnboardingProvider>().userName?.toUpperCase() ?? "MAMA")}'S CURRENT STATE",
                 style: GoogleFonts.poppins(
                   color: Colors.white70,
                   fontSize: 12,
@@ -251,7 +252,7 @@ class _PartnerDashboardScreenState extends State<PartnerDashboardScreen> {
             ),
             child: Center(
               child: Text(
-                "No active tasks. Check in with Mama gently.",
+                "No active tasks. Check in with ${context.read<OnboardingProvider>().userName ?? "Mama"} gently.",
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(color: Colors.grey),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/dashboard_provider.dart';
+import '../providers/onboarding_provider.dart';
 import 'partner_dashboard_screen.dart';
 import 'mother_logger_screen.dart';
 import 'mother_care_screen.dart';
@@ -46,6 +47,8 @@ class MotherDashboardScreen extends StatelessWidget {
 
   // 1. Header
   Widget _buildHeader(BuildContext context) {
+    final mamaName = context.read<OnboardingProvider>().userName ?? "Mama";
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +62,9 @@ class MotherDashboardScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const RoleSelectionScreen(),
+                  ),
                   (route) => false,
                 );
               },
@@ -69,7 +74,7 @@ class MotherDashboardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Hi, Mama",
+                  "Hi, $mamaName",
                   style: GoogleFonts.poppins(
                     color: const Color(0xFF6B5B95), // Dark Lavender
                     fontWeight: FontWeight.bold,
@@ -78,10 +83,7 @@ class MotherDashboardScreen extends StatelessWidget {
                 ),
                 Text(
                   "Day 14 of your Fourth Trimester",
-                  style: GoogleFonts.poppins(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
+                  style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
                 ),
               ],
             ),
@@ -91,11 +93,17 @@ class MotherDashboardScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.swap_horiz, color: Color(0xFF6B5B95), size: 30),
+              icon: const Icon(
+                Icons.swap_horiz,
+                color: Color(0xFF6B5B95),
+                size: 30,
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PartnerDashboardScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const PartnerDashboardScreen(),
+                  ),
                 );
               },
             ),
@@ -201,7 +209,12 @@ class MotherDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBubble(BuildContext context, DashboardProvider provider, String emoji, String text) {
+  Widget _buildBubble(
+    BuildContext context,
+    DashboardProvider provider,
+    String emoji,
+    String text,
+  ) {
     final bool isSelected = provider.selectedFeelings.contains(text);
     return GestureDetector(
       onTap: () {
@@ -223,10 +236,7 @@ class MotherDashboardScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(
-              emoji,
-              style: const TextStyle(fontSize: 24),
-            ),
+            Text(emoji, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 8),
             Text(
               text,
@@ -379,9 +389,12 @@ class MotherDashboardScreen extends StatelessWidget {
               color: isCompleted ? const Color(0xFF6B5B95) : Colors.grey,
             ),
             onPressed: () {
-              context.read<DashboardProvider>().toggleMamaTask(taskIndex, !isCompleted);
+              context.read<DashboardProvider>().toggleMamaTask(
+                taskIndex,
+                !isCompleted,
+              );
             },
-          )
+          ),
         ],
       ),
     );
@@ -506,13 +519,25 @@ class MotherDashboardScreen extends StatelessWidget {
       currentIndex: 0,
       onTap: (index) {
         if (index == 1) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherLoggerScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MotherLoggerScreen()),
+          );
         } else if (index == 3) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherCareScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MotherCareScreen()),
+          );
         } else if (index == 4) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const MotherProfileScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MotherProfileScreen()),
+          );
         } else if (index == 2) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PlaceholderScreen()),
+          );
         }
       },
       items: [

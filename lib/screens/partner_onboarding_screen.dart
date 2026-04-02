@@ -1,12 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../providers/onboarding_provider.dart';
 import 'partner_dashboard_screen.dart';
 
-class PartnerOnboardingScreen extends StatelessWidget {
+class PartnerOnboardingScreen extends StatefulWidget {
   const PartnerOnboardingScreen({super.key});
 
   @override
+  State<PartnerOnboardingScreen> createState() => _PartnerOnboardingScreenState();
+}
+
+class _PartnerOnboardingScreenState extends State<PartnerOnboardingScreen> {
+  final TextEditingController _pinController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onLinkAccountSubmit(BuildContext context) async {
+    final provider = context.read<OnboardingProvider>();
+    final success = await provider.linkWithMother();
+    if (!context.mounted) return;
+
+    if (success) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const PartnerDashboardScreen()),
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Invalid Pairing Code. Please check with your partner.",
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
+          backgroundColor: Colors.red[600],
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = context.watch<OnboardingProvider>();
+    final isPinComplete = _pinController.text.length == 4;
+
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7), // Cream background to match theme
       body: SafeArea(
@@ -55,45 +100,83 @@ class PartnerOnboardingScreen extends StatelessWidget {
               const SizedBox(height: 48),
 
               // 3. OTP/PIN Input Field Container
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 24.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(4, (index) {
-                    return Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                          width: 2,
-                        ),
+              GestureDetector(
+                onTap: () => FocusScope.of(context).requestFocus(_focusNode),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 24.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 24,
+                        offset: const Offset(0, 12),
                       ),
-                      child: Center(
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade400,
-                            shape: BoxShape.circle,
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(4, (index) {
+                          final isFilled = index < _pinController.text.length;
+                          return Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border: Border.all(
+                                color: isFilled ? const Color(0xFF6B5B95) : Colors.grey.shade200,
+                                width: 2,
+                              ),
+                            ),
+                            child: Center(
+                              child: isFilled
+                                ? Text(
+                                    _pinController.text[index],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF6B5B95),
+                                    ),
+                                  )
+                                : Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade400,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                            ),
+                          );
+                        }),
+                      ),
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: 0.0,
+                          child: TextField(
+                            controller: _pinController,
+                            focusNode: _focusNode,
+                            autofocus: true,
+                            keyboardType: TextInputType.number,
+                            maxLength: 4,
+                            onChanged: (val) {
+                              setState(() {});
+                              provider.setEnteredPairingCode(val);
+                            },
+                            decoration: const InputDecoration(
+                              counterText: "",
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                       ),
-                    );
-                  }),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 48),
@@ -102,31 +185,35 @@ class PartnerOnboardingScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Dummy callback per instructions
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PartnerDashboardScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: isPinComplete && !provider.isLoading
+                      ? () => _onLinkAccountSubmit(context)
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6B5B95),
+                    disabledBackgroundColor: const Color(0xFF6B5B95).withOpacity(0.5),
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32),
                     ),
                     elevation: 0,
                   ),
-                  child: Text(
-                    "Link Accounts",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: provider.isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          "Link Accounts",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 24),
