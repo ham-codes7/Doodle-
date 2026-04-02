@@ -14,12 +14,15 @@ class MotherOnboardingScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFDFBF7),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6B5B95)),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF6B5B95)),
+          onPressed: () {
+            if (Navigator.canPop(context)) Navigator.pop(context);
+          },
         ),
         title: Text(
           "Serene Sanctuary",
@@ -29,17 +32,10 @@ class MotherOnboardingScreen extends StatelessWidget {
             fontSize: 20,
           ),
         ),
-        centerTitle: true,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.grey.shade300,
-                child: const Icon(Icons.person, color: Colors.white),
-              ),
-            ),
+          IconButton(
+            icon: const Icon(Icons.home_rounded, color: Color(0xFF6B5B95)),
+            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
           ),
         ],
       ),

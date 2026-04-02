@@ -14,6 +14,15 @@ class PlaceholderScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF6B5B95)),
+          onPressed: () {
+            if (Navigator.canPop(context)) Navigator.pop(context);
+          },
+        ),
         title: Text(
           "Coming Soon",
           style: GoogleFonts.poppins(
@@ -21,9 +30,12 @@ class PlaceholderScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xFFFDFBF7),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF6B5B95)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home_rounded, color: Color(0xFF6B5B95)),
+            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+          ),
+        ],
       ),
       body: Center(
         child: Padding(

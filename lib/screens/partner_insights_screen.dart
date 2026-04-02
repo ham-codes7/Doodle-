@@ -11,9 +11,12 @@ class PartnerInsightsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6B5B95)),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF6B5B95)),
+          onPressed: () {
+            if (Navigator.canPop(context)) Navigator.pop(context);
+          },
         ),
         title: Text(
           "Partner Insights",
@@ -22,7 +25,12 @@ class PartnerInsightsScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home_rounded, color: Color(0xFF6B5B95)),
+            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
