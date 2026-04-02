@@ -42,7 +42,7 @@ class MotherProfileScreen extends StatelessWidget {
                   width: 150,
                   height: 150,
                   child: TweenAnimationBuilder(
-                    tween: Tween<double>(begin: 0, end: 0.25), // e.g., week 3 out of 12
+                    tween: Tween<double>(begin: 0, end: provider.postpartumProgressPercentage),
                     duration: const Duration(milliseconds: 1500),
                     curve: Curves.easeInOut,
                     builder: (context, double value, child) {
@@ -62,7 +62,7 @@ class MotherProfileScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Week 3",
+                                  "Week ${provider.currentPostpartumWeek}",
                                   style: GoogleFonts.poppins(
                                     color: const Color(0xFF6B5B95),
                                     fontSize: 24,
@@ -81,11 +81,12 @@ class MotherProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                "The Fourth Trimester",
+                "Phase: ${provider.currentPostpartumPhase}",
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF6B5B95),
                   fontSize: 16,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 48),

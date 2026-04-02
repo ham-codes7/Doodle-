@@ -38,6 +38,31 @@ class OnboardingProvider extends ChangeNotifier {
   bool get isFirstPregnancy => _isFirstPregnancy;
   String get enteredPairingCode => _enteredPairingCode;
 
+  // --- Dynamic Postpartum Timeline Math ---
+
+  int get currentPostpartumWeek {
+    if (_deliveryDate == null) return 0;
+    final now = DateTime.now();
+    if (now.isBefore(_deliveryDate!)) return 0;
+
+    final diffDays = now.difference(_deliveryDate!).inDays;
+    return diffDays ~/ 7;
+  }
+
+  String get currentPostpartumPhase {
+    final weeks = currentPostpartumWeek;
+    if (weeks <= 2) return "Acute Recovery";
+    if (weeks <= 6) return "Subacute Recovery";
+    if (weeks <= 12) return "Delayed Recovery";
+    return "Graduated";
+  }
+
+  double get postpartumProgressPercentage {
+    final weeks = currentPostpartumWeek;
+    if (weeks > 12) return 1.0;
+    return weeks / 12.0;
+  }
+
   bool get isMotherFormValid =>
       _age.isNotEmpty &&
       _height.isNotEmpty &&
